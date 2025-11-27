@@ -33,7 +33,7 @@ const CheckClient = () => {
 
   const navigate = useNavigate();
 
-  // FETCH EXISTING APPLICANT
+  // 🛑 MODIFIED FUNCTION: FETCH EXISTING APPLICANT
   const fetchApplicant = async () => {
     if (!applicantID.trim()) {
       alert("Please enter an Applicant ID");
@@ -43,14 +43,23 @@ const CheckClient = () => {
       const res = await axios.get(
         `http://localhost:8000/api/applicant/${encodeURIComponent(applicantID)}`
       );
+      // Success: Navigate to Dashboard
       navigate("/dashboard", { state: res.data });
     } catch (err) {
-      console.error(err);
-      alert("Applicant not found!");
+      console.error("Applicant fetch error:", err);
+      
+      // Check if the error is due to the resource not being found (e.g., HTTP 404)
+      if (err.response && err.response.status === 404) {
+          // 🚀 Action: Navigate to UserNotFound page
+          navigate('/UserNotFound');
+      } else {
+          // Handle other errors (network issues, server errors, etc.)
+          alert("Applicant not found or connection error occurred.");
+      }
     }
   };
 
-  // GET APPLICANT ID FROM BACKEND
+  // GET APPLICANT ID FROM BACKEND (omitted for brevity)
   const generateApplicantID = async (companyType) => {
     try {
       const res = await axios.get(
@@ -69,7 +78,7 @@ const CheckClient = () => {
     }
   };
 
-  // SEND OTP VIA FAST2SMS 
+  // SEND OTP VIA FAST2SMS (omitted for brevity)
   const sendOTP = async () => {
     // basic phone validation (adjust as needed)
     const digits = phone.replace(/\D/g, "");
@@ -104,7 +113,7 @@ const CheckClient = () => {
     }
   };
 
-  // OTP VALIDATION
+  // OTP VALIDATION (omitted for brevity)
   const verifyOTP = (value) => {
     // only digits allowed
     const digitsOnly = value.replace(/\D/g, "");
@@ -117,7 +126,7 @@ const CheckClient = () => {
     }
   };
 
-  // countdown effect for resend timer
+  // countdown effect for resend timer (omitted for brevity)
   useEffect(() => {
     if (resendTimer <= 0) return;
     const t = setInterval(() => {
@@ -132,7 +141,7 @@ const CheckClient = () => {
     return () => clearInterval(t);
   }, [resendTimer]);
 
-  // CREATE NEW APPLICANT
+  // CREATE NEW APPLICANT (omitted for brevity)
   const createApplicant = async () => {
     if (otpStatus !== "correct") {
       alert("Please enter the correct OTP before proceeding.");
@@ -230,7 +239,7 @@ const CheckClient = () => {
                 : "bg-[#003366] text-white hover:bg-[#002244]"
             }`}
           >
-            Proceed <FiArrowRightCircle />
+            Fetch Applicant <FiArrowRightCircle />
           </button>
         </div>
       )}
@@ -264,7 +273,7 @@ const CheckClient = () => {
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md font-medium transition ${
                 sendingOtp || resendTimer > 0
                   ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                  : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
             >
               <FiShield />
@@ -318,7 +327,7 @@ const CheckClient = () => {
             onClick={createApplicant}
             // Button is disabled if OTP is wrong OR if companyType is the default empty string
             disabled={creating || otpStatus !== "correct" || !companyType}
-            className={`w-full flex items-center justify-center gap-2 py-2 rounded-md text-white transition ${
+            className={`w-full py-2 rounded-md flex items-center justify-center gap-2 transition ${
               creating || otpStatus !== "correct" || !companyType
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-[#002244] hover:bg-[#002244]"
